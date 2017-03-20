@@ -67,32 +67,43 @@ namespace MSSQL.View
 
         public void ReadFromReg()
         {
-            string RegData = "";
-            RegData = Registry.GetValue(keyName, "", null).ToString();
-            DatabaseSettings AllDatabaseSettings = JsonConvert.DeserializeObject<DatabaseSettings>(RegData);
-            this.AllDatabaseSettings = AllDatabaseSettings;
+            try
+            {
+                string RegData = "";
+                RegData = Registry.GetValue(keyName, "", null).ToString();
+                DatabaseSettings AllDatabaseSettings = JsonConvert.DeserializeObject<DatabaseSettings>(RegData);
+                this.AllDatabaseSettings = AllDatabaseSettings;
+            }
+            catch { }
         }
 
         public void FirstFillData()
         {
-            foreach (DatabaseSetting DB in this.AllDatabaseSettings.DBList)
+            try
             {
-                this.ProfileComboBox.Items.Add(DB.SettingName);
-                this.MSSQLServerNameComboBox.Items.Add(DB.MSSQLName);
-
-                if (DB.LastUsed == true)
+                if (this.AllDatabaseSettings.DBList.Count() > 0)
                 {
-                    this.ProfileComboBox.Text = DB.SettingName;
-                    this.MSSQLServerNameComboBox.Text = DB.MSSQLName;
-                    this.WinAuthCheckBox.Checked = DB.MSSQLWInAuth;
-                    this.MSSQLLogin.Text = DB.MSSQLLogin;
-                    this.MSSQLPass.Text = DB.MSSQLPass;
-                    this.QueryTextBox.Text = DB.Query;
-                    this.QueryUpdateTime.Text = DB.Update.ToString();
-                    this.QueryUpdateTime.Text = DB.Update.ToString();
-                    this.QueryTimerTextBox.Text = DB.Update.ToString();
+                    foreach (DatabaseSetting DB in this.AllDatabaseSettings.DBList)
+                    {
+                        this.ProfileComboBox.Items.Add(DB.SettingName);
+                        this.MSSQLServerNameComboBox.Items.Add(DB.MSSQLName);
+
+                        if (DB.LastUsed == true)
+                        {
+                            this.ProfileComboBox.Text = DB.SettingName;
+                            this.MSSQLServerNameComboBox.Text = DB.MSSQLName;
+                            this.WinAuthCheckBox.Checked = DB.MSSQLWInAuth;
+                            this.MSSQLLogin.Text = DB.MSSQLLogin;
+                            this.MSSQLPass.Text = DB.MSSQLPass;
+                            this.QueryTextBox.Text = DB.Query;
+                            this.QueryUpdateTime.Text = DB.Update.ToString();
+                            this.QueryUpdateTime.Text = DB.Update.ToString();
+                            this.QueryTimerTextBox.Text = DB.Update.ToString();
+                        }
+                    }
                 }
             }
+            finally { }
         }
 
         public DatabaseSetting FindDBSetting(string ProfileName)
@@ -182,6 +193,7 @@ namespace MSSQL.View
                 DBSet.Update = Convert.ToInt32(this.QueryUpdateTime.Text,10);
                 DBSet.LastUsed = true;
             }
+            this.QueryTimerTextBox.Text = this.QueryUpdateTime.Text;
             SaveIntoReg();
         }
 
@@ -301,6 +313,15 @@ namespace MSSQL.View
             }
             else
             {
+                this.ProfileComboBox.Text = "";
+                this.MSSQLServerNameComboBox.Text = "";
+                this.MSSQLLogin.Text = "";
+                this.MSSQLPass.Text = "";
+                this.WinAuthCheckBox.Checked = true;
+                this.QueryTextBox.Text = "";
+                this.QueryUpdateTime.Text = "30";
+                this.ProfileComboBox.Text = "";
+                this.ProfileComboBox.Items.Remove(DBSet.SettingName);
                 AllDatabaseSettings.DeleteDatabaseSetting(DBSet);
                 SaveIntoReg();
             }
