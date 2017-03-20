@@ -32,7 +32,7 @@
             this.MSSQLServerNameLabel = new System.Windows.Forms.Label();
             this.MSSQLSettingsGroupBox = new System.Windows.Forms.GroupBox();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.QueryUpdate = new System.Windows.Forms.MaskedTextBox();
+            this.QueryUpdateTime = new System.Windows.Forms.MaskedTextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.QueryTextBox = new System.Windows.Forms.RichTextBox();
@@ -57,11 +57,11 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.QueryTimerTextBox = new System.Windows.Forms.MaskedTextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.SQLDataSet = new MSSQL.View.DataSet1();
-            this.QueryTimer = new System.Windows.Forms.Timer(this.components);
-            this.SQLBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.SQLDataGridView = new System.Windows.Forms.DataGridView();
+            this.SQLBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.SQLDataSet = new MSSQL.View.DataSet1();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.QueryTimer = new System.Windows.Forms.Timer(this.components);
             this.MSSQLSettingsGroupBox.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -73,10 +73,10 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.SQLDataSet)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.SQLBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SQLDataGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SQLBindingSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SQLDataSet)).BeginInit();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // MSSQLServerNameLabel
@@ -106,7 +106,7 @@
             // 
             // panel4
             // 
-            this.panel4.Controls.Add(this.QueryUpdate);
+            this.panel4.Controls.Add(this.QueryUpdateTime);
             this.panel4.Controls.Add(this.label3);
             this.panel4.Controls.Add(this.label2);
             this.panel4.Controls.Add(this.QueryTextBox);
@@ -116,18 +116,18 @@
             this.panel4.Size = new System.Drawing.Size(764, 403);
             this.panel4.TabIndex = 8;
             // 
-            // QueryUpdate
+            // QueryUpdateTime
             // 
-            this.QueryUpdate.Location = new System.Drawing.Point(115, 5);
-            this.QueryUpdate.Mask = "00000";
-            this.QueryUpdate.Name = "QueryUpdate";
-            this.QueryUpdate.PromptChar = ' ';
-            this.QueryUpdate.Size = new System.Drawing.Size(38, 20);
-            this.QueryUpdate.TabIndex = 4;
-            this.QueryUpdate.Text = "30";
-            this.QueryUpdate.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.QueryUpdate.ValidatingType = typeof(int);
-            this.QueryUpdate.MaskInputRejected += new System.Windows.Forms.MaskInputRejectedEventHandler(this.QueryUpdate_MaskInputRejected);
+            this.QueryUpdateTime.Location = new System.Drawing.Point(115, 5);
+            this.QueryUpdateTime.Mask = "00000";
+            this.QueryUpdateTime.Name = "QueryUpdateTime";
+            this.QueryUpdateTime.PromptChar = ' ';
+            this.QueryUpdateTime.Size = new System.Drawing.Size(38, 20);
+            this.QueryUpdateTime.TabIndex = 4;
+            this.QueryUpdateTime.Text = "30";
+            this.QueryUpdateTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.QueryUpdateTime.ValidatingType = typeof(int);
+            this.QueryUpdateTime.MaskInputRejected += new System.Windows.Forms.MaskInputRejectedEventHandler(this.QueryUpdate_MaskInputRejected);
             // 
             // label3
             // 
@@ -239,7 +239,6 @@
             this.MSSQLLoginLabel.Size = new System.Drawing.Size(84, 13);
             this.MSSQLLoginLabel.TabIndex = 0;
             this.MSSQLLoginLabel.Text = "SQL/Win Login:";
-            this.MSSQLLoginLabel.Click += new System.EventHandler(this.MSSQLLoginLabel_Click);
             // 
             // MSSQLServerNameComboBox
             // 
@@ -300,6 +299,7 @@
             this.ProfileDeleteButton.TabIndex = 2;
             this.ProfileDeleteButton.Text = "Delete";
             this.ProfileDeleteButton.UseVisualStyleBackColor = true;
+            this.ProfileDeleteButton.Click += new System.EventHandler(this.ProfileDeleteButton_Click);
             // 
             // tabControl1
             // 
@@ -402,6 +402,30 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "Update (sec):";
             // 
+            // SQLDataGridView
+            // 
+            this.SQLDataGridView.AllowUserToAddRows = false;
+            this.SQLDataGridView.AllowUserToDeleteRows = false;
+            this.SQLDataGridView.AutoGenerateColumns = false;
+            this.SQLDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.SQLDataGridView.DataSource = this.SQLBindingSource;
+            this.SQLDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SQLDataGridView.Location = new System.Drawing.Point(0, 0);
+            this.SQLDataGridView.Name = "SQLDataGridView";
+            this.SQLDataGridView.ReadOnly = true;
+            this.SQLDataGridView.Size = new System.Drawing.Size(770, 503);
+            this.SQLDataGridView.TabIndex = 0;
+            // 
+            // SQLBindingSource
+            // 
+            this.SQLBindingSource.DataSource = this.SQLDataSet;
+            this.SQLBindingSource.Position = 0;
+            // 
+            // SQLDataSet
+            // 
+            this.SQLDataSet.DataSetName = "SQLDataSet";
+            this.SQLDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.MSSQLSettingsGroupBox);
@@ -413,32 +437,9 @@
             this.tabPage2.Text = "Setting";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // SQLDataSet
-            // 
-            this.SQLDataSet.DataSetName = "SQLDataSet";
-            this.SQLDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
-            // 
             // QueryTimer
             // 
             this.QueryTimer.Tick += new System.EventHandler(this.QueryTimer_Tick);
-            // 
-            // SQLBindingSource
-            // 
-            this.SQLBindingSource.DataSource = this.SQLDataSet;
-            this.SQLBindingSource.Position = 0;
-            // 
-            // SQLDataGridView
-            // 
-            this.SQLDataGridView.AllowUserToAddRows = false;
-            this.SQLDataGridView.AllowUserToDeleteRows = false;
-            this.SQLDataGridView.AutoGenerateColumns = false;
-            this.SQLDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.SQLDataGridView.DataSource = this.SQLBindingSource;
-            this.SQLDataGridView.Location = new System.Drawing.Point(5, 4);
-            this.SQLDataGridView.Name = "SQLDataGridView";
-            this.SQLDataGridView.ReadOnly = true;
-            this.SQLDataGridView.Size = new System.Drawing.Size(760, 496);
-            this.SQLDataGridView.TabIndex = 0;
             // 
             // MSSQLViewerForm
             // 
@@ -464,11 +465,11 @@
             this.splitContainer1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.SQLDataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SQLBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SQLDataSet)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.SQLDataSet)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.SQLBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.SQLDataGridView)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -503,7 +504,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Timer QueryTimer;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.MaskedTextBox QueryUpdate;
+        private System.Windows.Forms.MaskedTextBox QueryUpdateTime;
         private System.Windows.Forms.Button StartButton;
         private System.Windows.Forms.Button StopButton;
         private System.Windows.Forms.BindingSource SQLBindingSource;

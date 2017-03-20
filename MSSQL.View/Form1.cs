@@ -22,14 +22,15 @@ namespace MSSQL.View
         public DatabaseSettings AllDatabaseSettings = new DatabaseSettings();
 
         public SqlConnection SQLConn     = new SqlConnection();
-        public SqlCommandBuilder SQLCmd         = new SqlCommandBuilder();
+        public SqlCommand SQLCmd         = new SqlCommand();
         public SqlDataAdapter SQLAdapter = new SqlDataAdapter();
-        public DataTable SQLTable = new DataTable();
+        public DataTable SQLTable        = new DataTable();
 
         public interface IDatabaseSettings
         {
             //IEnumerable<DatabaseSettings> GetAllDatabaseSetting();
             void SaveDatabaseSetting(DatabaseSetting DBSet);
+            void DeleteDatabaseSetting(DatabaseSetting DBSet);
         }
 
         public class DatabaseSettings: IDatabaseSettings
@@ -39,6 +40,10 @@ namespace MSSQL.View
             public void SaveDatabaseSetting(DatabaseSetting DBSet) // записываем одну настройку
             {
                 this.DBList.Add(DBSet);
+            }
+            public void DeleteDatabaseSetting(DatabaseSetting DBSet) // записываем одну настройку
+            {
+                this.DBList.Remove(DBSet);
             }
         }
 
@@ -83,8 +88,8 @@ namespace MSSQL.View
                     this.MSSQLLogin.Text = DB.MSSQLLogin;
                     this.MSSQLPass.Text = DB.MSSQLPass;
                     this.QueryTextBox.Text = DB.Query;
-                    this.QueryUpdate.Text = DB.Update.ToString();
-                    this.QueryUpdate.Text = DB.Update.ToString();
+                    this.QueryUpdateTime.Text = DB.Update.ToString();
+                    this.QueryUpdateTime.Text = DB.Update.ToString();
                     this.QueryTimerTextBox.Text = DB.Update.ToString();
                 }
             }
@@ -109,6 +114,7 @@ namespace MSSQL.View
         {
             ReadFromReg();
             FirstFillData();
+            this.SQLDataGridView.AutoGenerateColumns = true;
         }
 
         private void QueryTimerTextBox_Leave(object sender, EventArgs e)
@@ -120,6 +126,10 @@ namespace MSSQL.View
         {
             if (e.KeyChar == '\r')
             {
+                this.QueryTimer.Interval = Convert.ToInt32(this.QueryTimerTextBox.Text, 10) * 1000;
+                this.QueryUpdateTime.Text = this.QueryTimerTextBox.Text;
+                ProfileSaveButton_Click(this.ProfileComboBox, null);
+                UpdateMSSQLQuery();
                 this.SQLDataGridView.Focus();
             }
         }
@@ -157,7 +167,7 @@ namespace MSSQL.View
                 NewDBSet.MSSQLWInAuth = this.WinAuthCheckBox.Checked;
                 NewDBSet.Query = this.QueryTextBox.Text;
                 NewDBSet.LastUsed = true;
-                NewDBSet.Update = Convert.ToInt32(this.QueryUpdate.Text, 10);
+                NewDBSet.Update = Convert.ToInt32(this.QueryUpdateTime.Text, 10);
                 AllDatabaseSettings.SaveDatabaseSetting(NewDBSet);
                 this.ProfileComboBox.Items.Add(NewDBSet.SettingName);
             }
@@ -169,7 +179,7 @@ namespace MSSQL.View
                 DBSet.MSSQLPass = this.MSSQLPass.Text;
                 DBSet.MSSQLWInAuth = this.WinAuthCheckBox.Checked;
                 DBSet.Query = this.QueryTextBox.Text;
-                DBSet.Update = Convert.ToInt32(this.QueryUpdate.Text,10);
+                DBSet.Update = Convert.ToInt32(this.QueryUpdateTime.Text,10);
                 DBSet.LastUsed = true;
             }
             SaveIntoReg();
@@ -186,7 +196,7 @@ namespace MSSQL.View
                 this.MSSQLLogin.Text = DBSet.MSSQLLogin;
                 this.MSSQLPass.Text = DBSet.MSSQLPass;
                 this.QueryTextBox.Text = DBSet.Query;
-                this.QueryUpdate.Text = DBSet.Update.ToString();
+                this.QueryUpdateTime.Text = DBSet.Update.ToString();
                 this.QueryTimerTextBox.Text = DBSet.Update.ToString();
                 DBSet.LastUsed = true;
             }
@@ -194,12 +204,12 @@ namespace MSSQL.View
 
         private void QueryTimerTextBox_TextChanged(object sender, EventArgs e)
         {
-            this.QueryUpdate.Text = this.QueryTimerTextBox.Text;
+            this.QueryUpdateTime.Text = this.QueryTimerTextBox.Text;
         }
 
         private void QueryUpdate_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
         {
-            this.QueryTimerTextBox.Text = this.QueryUpdate.Text;
+            this.QueryTimerTextBox.Text = this.QueryUpdateTime.Text;
         }
 
         private void MSSQLViewerForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -212,11 +222,10 @@ namespace MSSQL.View
         {
             this.QueryTimer.Interval = Convert.ToInt32(this.QueryTimerTextBox.Text, 10)*1000;
             this.QueryTimer.Enabled = true;
-            PrepareMSSQLConnection();
             UpdateMSSQLQuery();
         }
 
-        private bool PrepareMSSQLConnection()
+        private bool UpdateMSSQLQuery()
         {
             SqlConnectionStringBuilder SQLConStr = new SqlConnectionStringBuilder();
             if (this.MSSQLServerNameComboBox.Text == ""){ SQLConStr.DataSource = "(local)"; }
@@ -234,59 +243,35 @@ namespace MSSQL.View
             }
 
             SQLConStr["Connect Timeout"] = 30;
-            SQLConStr.AsynchronousProcessing = true;
+            string connectionString = SQLConStr.ConnectionString;
+            string sql = this.QueryTextBox.Text;
 
-            this.SQLConn = new SqlConnection(SQLConStr.ConnectionString);
-            this.SQLAdapter = new SqlDataAdapter(this.QueryTextBox.Text, this.SQLConn);
-            this.SQLCmd = new SqlCommandBuilder(this.SQLAdapter);
-
-            try { this.SQLConn.Open(); return true; }
-            catch (SqlException e)
+            using (this.SQLConn = new SqlConnection(connectionString))
+            using (this.SQLCmd = new SqlCommand(sql, this.SQLConn))
+            using (this.SQLAdapter = new SqlDataAdapter(this.SQLCmd))
             {
-                DialogResult result = MessageBox.Show(e.Source, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
+                try
+                {
+                    if (this.SQLConn.State != ConnectionState.Open) this.SQLConn.Open();
+                    this.SQLTable.Clear();
+                    this.SQLTable.Columns.Clear();
+                    this.SQLAdapter.Fill(this.SQLTable);
+                    this.SQLDataGridView.DataSource = this.SQLTable;
+                    return true;
+                }
+                catch (SqlException e)
+                {
+                    DialogResult result = MessageBox.Show(e.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.QueryTimer.Enabled = false;
+                    return false;
+                }
+                catch (InvalidOperationException e)
+                {
+                    DialogResult result = MessageBox.Show(e.Message, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.QueryTimer.Enabled = false;
+                    return false;
+                }
 
-            /*
-            string strCon = "Data Source=dbServer;Initial Catalog=testDB;Integrated Security=True";
-            string strSQL = “select * from table1”;
-            
-            SqlDataAdapter dataAdapter = new SqlDataAdapter(strSQL, strCon);
-            SqlCommandBuilder commandBuilder = new SqlCommandBuilder(dataAdapter);
-            // Populate a new data table and bind it to the BindingSource.
-            DataTable table = new DataTable();
-            dataAdapter.Fill(table);
-            dbBindSource.DataSource = table;
-            <o:p> 
-            // Resize the DataGridView columns to fit the newly loaded content.
-            dbGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCellsExceptHeader);
-            // you can make it grid readonly.
-            dbGridView.ReadOnly = true; 
-            // finally bind the data to the grid
-            dbGridView.DataSource = dbBindSource;
-            */
-
-
-        }
-
-        private void UpdateMSSQLQuery()
-        {
-            try {
-                if (this.SQLConn.State != ConnectionState.Open ) this.SQLConn.Open();
-                this.SQLAdapter.Fill(this.SQLTable);
-                this.SQLBindingSource.DataSource = this.SQLTable;
-                this.SQLDataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCellsExceptHeader);
-                this.SQLDataGridView.DataSource = this.SQLBindingSource;
-            }
-            catch (SqlException e)
-            {
-                DialogResult result = MessageBox.Show(e.Source, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.SQLConn.Close();
-            }
-            catch (InvalidOperationException e)
-            {
-                DialogResult result = MessageBox.Show(e.Source, "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.SQLConn.Close();
             }
         }
 
@@ -301,9 +286,24 @@ namespace MSSQL.View
             this.SQLConn.Close();
         }
 
-        private void MSSQLLoginLabel_Click(object sender, EventArgs e)
+        private void ProfileDeleteButton_Click(object sender, EventArgs e)
         {
-
+            DatabaseSetting DBSet = FindDBSetting(this.ProfileComboBox.Text);
+            if (DBSet == null)
+            {
+                this.ProfileComboBox.Text = "";
+                this.MSSQLServerNameComboBox.Text = "";
+                this.MSSQLLogin.Text = "";
+                this.MSSQLPass.Text = "";
+                this.WinAuthCheckBox.Checked = true;
+                this.QueryTextBox.Text = "";
+                this.QueryUpdateTime.Text = "30";
+            }
+            else
+            {
+                AllDatabaseSettings.DeleteDatabaseSetting(DBSet);
+                SaveIntoReg();
+            }
         }
     }
 }
