@@ -119,6 +119,7 @@ namespace MSSQL.View
         public MSSQLViewerForm()
         {
             InitializeComponent();
+            //this.Icon = new Icon("Resources/MSSQL.View.ico");
         }
 
         private void MSSQLViewerForm_Load(object sender, EventArgs e)
@@ -325,6 +326,19 @@ namespace MSSQL.View
                 this.ProfileComboBox.Items.Remove(DBSet.SettingName);
                 AllDatabaseSettings.DeleteDatabaseSetting(DBSet);
                 SaveIntoReg();
+            }
+        }
+
+        private void SQLDataGridView_ColumnRemoved(object sender, DataGridViewColumnEventArgs e)
+        {
+
+        }
+
+        private void SQLDataGridView_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                SQLDataGridView.Columns[e.ColumnIndex].Visible = false;
             }
         }
     }

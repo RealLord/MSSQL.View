@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MSSQLViewerForm));
             this.MSSQLServerNameLabel = new System.Windows.Forms.Label();
             this.MSSQLSettingsGroupBox = new System.Windows.Forms.GroupBox();
             this.panel4 = new System.Windows.Forms.Panel();
@@ -406,7 +409,19 @@
             // 
             this.SQLDataGridView.AllowUserToAddRows = false;
             this.SQLDataGridView.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle1.Format = "G";
+            dataGridViewCellStyle1.NullValue = null;
+            this.SQLDataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.SQLDataGridView.AutoGenerateColumns = false;
+            this.SQLDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.GradientActiveCaption;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.SQLDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.SQLDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.SQLDataGridView.DataSource = this.SQLBindingSource;
             this.SQLDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -415,6 +430,7 @@
             this.SQLDataGridView.ReadOnly = true;
             this.SQLDataGridView.Size = new System.Drawing.Size(770, 503);
             this.SQLDataGridView.TabIndex = 0;
+            this.SQLDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.SQLDataGridView_ColumnHeaderMouseClick);
             // 
             // SQLBindingSource
             // 
@@ -445,6 +461,7 @@
             // 
             this.ClientSize = new System.Drawing.Size(784, 561);
             this.Controls.Add(this.tabControl1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "MSSQLViewerForm";
             this.Text = "MS SQL Viewer";
