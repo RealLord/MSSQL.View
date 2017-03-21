@@ -212,6 +212,7 @@ namespace MSSQL.View
                 this.QueryTimerTextBox.Text = DBSet.Update.ToString();
                 DBSet.LastUsed = true;
             }
+            try {this.SQLTable.Columns.Clear();} finally { }
         }
 
         private void QueryTimerTextBox_TextChanged(object sender, EventArgs e)
@@ -266,7 +267,7 @@ namespace MSSQL.View
                 {
                     if (this.SQLConn.State != ConnectionState.Open) this.SQLConn.Open();
                     this.SQLTable.Clear();
-                    this.SQLTable.Columns.Clear();
+                    //this.SQLTable.Columns.Clear();
                     this.SQLAdapter.Fill(this.SQLTable);
                     this.SQLDataGridView.DataSource = this.SQLTable;
                     return true;
